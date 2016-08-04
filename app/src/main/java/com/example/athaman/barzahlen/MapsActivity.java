@@ -9,8 +9,12 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.internal.overlay.zzo;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,13 +43,32 @@ public class MapsActivity extends FragmentActivity
     private static LatLng sUserLocation = new LatLng(52.525123, 13.369649);
     private static Polyline line;
     private LocationRequest mLocationRequest;
+    private EditText editSearch;
+    private ImageButton btnRefresh;
+    private ImageButton btnSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        editSearch = (EditText) findViewById(R.id.search);
+        btnRefresh = (ImageButton) findViewById(R.id.refresh);
+        btnSearch = (ImageButton) findViewById(R.id.searchButton);
 
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                search();
+            }
+        });
+
+        btnRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setStores();
+            }
+        });
         //Build a Google API client including the Location Services.
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -219,5 +242,10 @@ public class MapsActivity extends FragmentActivity
     public void onLocationChanged(Location location) {
         sUserLocation = new LatLng(location.getLatitude(), location.getLongitude());
     }
+
+    private void search(){
+
+    }
+
 
 }
