@@ -8,8 +8,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by keone on 8/3/2016.
@@ -18,13 +18,13 @@ public class Directions {
 
     public static final String LOG_TAG = "Directions";
 
-    private static final String sBaseURL = "https://maps.googleapis.com/maps/api/directions/json?";
+    private static final String BASE_URL= "https://maps.googleapis.com/maps/api/directions/json?";
+    private static final String MODE = "&mode=walking";
+    private static final String KEY = "&key=AIzaSyChohoOE2Ew3p7n42rPfzjVIe4DgGJjr2s";
     private String mOrigin = "origin=";
     private String mDestination = "&destination=";
     private String mUrl;
-    private static String mode = "&mode=walking";
-    private static String key = "&key=AIzaSyChohoOE2Ew3p7n42rPfzjVIe4DgGJjr2s";
-    private List<LatLng> mNavPoints;
+
 
     public Directions(LatLng origin, LatLng destination){
         this.mOrigin += getLatLngCoords(origin);
@@ -46,16 +46,16 @@ public class Directions {
     }
 
     private void setUrl(){
-        mUrl = sBaseURL  + mOrigin  + mDestination  + mode + key;
+        mUrl = BASE_URL  + mOrigin  + mDestination  + MODE + KEY;
     }
 
     //takes in the result of the download in a raw JSON String
-    private void processResults(String webData){
-        mNavPoints = new ArrayList<LatLng>();
-        if (webData != null) {
+    private ArrayList<LatLng> processResults(String jsonString){
+        ArrayList<LatLng> navPoints = new ArrayList<LatLng>();
+        if (jsonString != null) {
             try {
                 //Turn the String into a JSON object then fetch the "steps" information
-                JSONObject directions = new JSONObject(webData);
+                JSONObject directions = new JSONObject(jsonString);
                 JSONArray routes =  directions.getJSONArray("routes");
                 JSONArray legs = routes.getJSONObject(0).getJSONArray("legs");
                 JSONArray steps = legs.getJSONObject(0).getJSONArray("steps");
@@ -66,13 +66,15 @@ public class Directions {
                     JSONObject end = step.getJSONObject("end_location");
                     double lat = end.getDouble("lat");
                     double lng = end.getDouble("lng");
-                    mNavPoints.add(new LatLng(lat, lng));
+                    navPoints.add(new LatLng(lat, lng));
                 }
+                return navPoints;
             } catch (JSONException e) {
                 //TODO handle this.
                 Log.e(LOG_TAG, "something went horribly wrong with your JSON");
             }
         }
+        return null;
 
     }
 
@@ -84,9 +86,9 @@ public class Directions {
         }
 
         @Override
-        protected void onPostExecute(String webData){
-            processResults(webData);
-            MapsActivity.drawDirections(mNavPoints);
+        protected void onPostExecute(String jsonString){
+            ArrayList<LatLng> navPoints = processResults(jsonString);
+            MapsActivity.drawDirections(navPoints);
         }
     }
 

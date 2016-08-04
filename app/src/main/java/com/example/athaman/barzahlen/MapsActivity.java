@@ -8,13 +8,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.internal.overlay.zzo;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -69,7 +67,7 @@ public class MapsActivity extends FragmentActivity
                 //This just sets more markers for the new screen. Could delete old markers for
                 //performance or leave them for convenience of user to scroll back. Possibly could
                 //set a max marker variable and overwrite old ones.
-                setStores();
+                findNearbyStores();
             }
         });
         //Build a Google API client including the Location Services.
@@ -123,7 +121,7 @@ public class MapsActivity extends FragmentActivity
         //set the nearby store markers.
         getLocation();
         updateCamera(sUserLocation);
-        setStores();
+        findNearbyStores();
 
     }
 
@@ -146,7 +144,7 @@ public class MapsActivity extends FragmentActivity
             if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) {
                 getLocation();
                 updateCamera(sUserLocation);
-                setStores();
+                findNearbyStores();
             } else {
                 //If the user denies permission warn them that it's fundamental to the app and ask again.
                 Toast.makeText(this, "Your location is pretty important for this app.", Toast.LENGTH_SHORT).show();
@@ -200,7 +198,7 @@ public class MapsActivity extends FragmentActivity
         }
     }
 
-    private void setStores() {
+    private void findNearbyStores() {
         //creates an instance of the Stores class based on the boundaries of the map displayed on
         //screen at the time. The Stores class calls back to drawLocations to display markers.
         LatLngBounds curScreen = mMap.getProjection()

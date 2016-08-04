@@ -1,6 +1,5 @@
 package com.example.athaman.barzahlen;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -9,17 +8,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by keone on 8/2/2016.
  */
 public class Stores {
 
-    public static final String LOG_TAG = Stores.class.getSimpleName();
-    private String mRawUrl = "https://www.barzahlen.de/";
+    private static final String LOG_TAG = Stores.class.getSimpleName();
+    private static final String RAW_URL = "https://www.barzahlen.de/";
     private LatLngBounds mBoundary;
-    private List<LatLng> mStores;
 
 
     public Stores(LatLngBounds boundary) {
@@ -27,25 +24,25 @@ public class Stores {
     }
 
     public void execute() {
-        String url = setUrl();
+        String url = makeURL();
         DownloadStoreData downloadRawData = new DownloadStoreData();
         downloadRawData.execute(url);
     }
 
-    private String setUrl() {
+    private String makeURL() {
         LatLng northEast = mBoundary.northeast;
         LatLng southWest = mBoundary.southwest;
-        Double southWestLat = southWest.latitude;
-        Double southWestLng = southWest.longitude;
-        Double northEastLat = northEast.latitude;
-        Double northEastLng = northEast.longitude;
-        return mRawUrl + "filialfinder/get_stores?map_bounds=((" + southWestLat.toString() + ","
-                + southWestLng.toString() + "),(" + northEastLat.toString()
-                + "," + northEastLng.toString() + "))";
+        String southWestLat = String.valueOf(southWest.latitude);
+        String southWestLng = String.valueOf(southWest.longitude);
+        String northEastLat = String.valueOf(northEast.latitude);
+        String northEastLng = String.valueOf(northEast.longitude);
+
+        return RAW_URL + "filialfinder/get_stores?map_bounds=((" + southWestLat + ","
+                + southWestLng + "),(" + northEastLat + "," + northEastLng + "))";
     }
 
-    private void processResults(String webData) {
-        mStores = new ArrayList<>();
+    private ArrayList<LatLng> processResults(String webData) {
+        ArrayList<LatLng> stores = new ArrayList<>();
         if (webData != null) {
             try {
                 JSONArray locations = new JSONArray(webData);
@@ -53,13 +50,15 @@ public class Stores {
                     JSONObject store = locations.getJSONObject(i);
                     double lat = store.getDouble("lat");
                     double lng = store.getDouble("lng");
-                    mStores.add(new LatLng(lat, lng));
+                    stores.add(new LatLng(lat, lng));
                 }
+                return stores;
             } catch (JSONException e) {
                 //TODO handle this.
                 Log.e(LOG_TAG, "Something went horribly wrong processing the JSON");
             }
         }
+        return null;
     }
 
     public class DownloadStoreData extends GetRawData {
@@ -70,9 +69,9 @@ public class Stores {
         }
 
         @Override
-        protected void onPostExecute(String webData) {
-            processResults(webData);
-            MapsActivity.drawLocations(mStores);
+        protected void onPostExecute(String jsonString) {
+            ArrayList<LatLng> stores = processResults(jsonString);
+            MapsActivity.drawLocations(stores);
         }
     }
 
