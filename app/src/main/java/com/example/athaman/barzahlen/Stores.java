@@ -17,33 +17,31 @@ import java.util.List;
 public class Stores {
 
     public static final String LOG_TAG = Stores.class.getSimpleName();
-    private String mRawUrl = "https://www.barzahlen.de/filialfinder/get_stores?map_bounds=((";
-    private String mURL;
+    private String mRawUrl = "https://www.barzahlen.de/";
     private LatLngBounds mBoundary;
     private List<LatLng> mStores;
 
 
     public Stores(LatLngBounds boundary) {
         mBoundary = boundary;
-        mURL = mRawUrl + boundary.northeast + "," + boundary.southwest + ")";
     }
 
     public void execute() {
-        setUrl();
+        String url = setUrl();
         DownloadStoreData downloadRawData = new DownloadStoreData();
-        downloadRawData.execute(mURL);
+        downloadRawData.execute(url);
     }
 
-    private void setUrl() {
-        mURL = mRawUrl;
+    private String setUrl() {
         LatLng northEast = mBoundary.northeast;
         LatLng southWest = mBoundary.southwest;
         Double southWestLat = southWest.latitude;
         Double southWestLng = southWest.longitude;
         Double northEastLat = northEast.latitude;
         Double northEastLng = northEast.longitude;
-        mURL += southWestLat.toString() + "," + southWestLng.toString() + "),("
-                + northEastLat.toString() + "," + northEastLng.toString() + "))";
+        return mRawUrl + "filialfinder/get_stores?map_bounds=((" + southWestLat.toString() + ","
+                + southWestLng.toString() + "),(" + northEastLat.toString()
+                + "," + northEastLng.toString() + "))";
     }
 
     private void processResults(String webData) {
@@ -67,8 +65,8 @@ public class Stores {
     public class DownloadStoreData extends GetRawData {
 
         @Override
-        protected String doInBackground(String... strings){
-            return super.doInBackground(strings);
+        protected String doInBackground(String... urls){
+            return super.doInBackground(urls);
         }
 
         @Override

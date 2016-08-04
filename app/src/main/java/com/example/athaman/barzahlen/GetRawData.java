@@ -16,31 +16,31 @@ import java.net.URL;
 public class GetRawData extends AsyncTask<String, Void, String> {
     public static final String LOG_TAG = "GetRawData";
     @Override
-    protected String doInBackground(String... strings) {
+    protected String doInBackground(String... urls) {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
         //If the input is errored somehow return null to avoid breaking a http connection
-        if (strings == null) {
+        if (urls == null) {
             return null;
         }
 
         //convert the URL String into a URL, make a HTTP connection and connect it then get an
         //input stream. If the stream isn't null create a buffer and a reader to parse the input stream.
         try {
-            URL url = new URL(strings[0]);
-            Log.e(LOG_TAG, "Trying to connect to " + strings[0]);
+            URL url = new URL(urls[0]);
+            Log.e(LOG_TAG, "Trying to connect to " + urls[0]);
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
-            InputStream is = urlConnection.getInputStream();
-            if (is == null) {
+            InputStream inputStream = urlConnection.getInputStream();
+            if (inputStream == null) {
                 return null;
             }
 
             StringBuffer buffer = new StringBuffer();
 
-            reader = new BufferedReader(new InputStreamReader(is));
+            reader = new BufferedReader(new InputStreamReader(inputStream));
 
             String line;
 

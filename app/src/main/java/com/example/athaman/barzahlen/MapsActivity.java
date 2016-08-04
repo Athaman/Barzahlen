@@ -66,6 +66,9 @@ public class MapsActivity extends FragmentActivity
         btnRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //This just sets more markers for the new screen. Could delete old markers for
+                //performance or leave them for convenience of user to scroll back. Possibly could
+                //set a max marker variable and overwrite old ones.
                 setStores();
             }
         });

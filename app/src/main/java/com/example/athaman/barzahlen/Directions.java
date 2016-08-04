@@ -79,8 +79,8 @@ public class Directions {
     public class GetDirectionData extends GetRawData{
 
         @Override
-        protected String doInBackground(String... strings){
-            return super.doInBackground(strings);
+        protected String doInBackground(String... urls){
+            return super.doInBackground(urls);
         }
 
         @Override
