@@ -1,6 +1,9 @@
 package com.example.athaman.barzahlen;
 
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,10 +12,10 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
-
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,6 +31,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.io.IOException;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity
@@ -57,7 +61,12 @@ public class MapsActivity extends FragmentActivity
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                        InputMethodManager.HIDE_NOT_ALWAYS);
                 search();
+
             }
         });
 
@@ -203,7 +212,7 @@ public class MapsActivity extends FragmentActivity
         //screen at the time. The Stores class calls back to drawLocations to display markers.
         LatLngBounds curScreen = mMap.getProjection()
                 .getVisibleRegion().latLngBounds;
-        Stores stores = new Stores(curScreen);
+        Stores stores = new Stores(curScreen, this);
         stores.execute();
     }
 
@@ -238,6 +247,10 @@ public class MapsActivity extends FragmentActivity
         }
     }
 
+    @Override
+    public void onConfigurationChanged(android.content.res.Configuration configuration){
+        super.onConfigurationChanged(configuration);
+    }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -245,7 +258,27 @@ public class MapsActivity extends FragmentActivity
     }
 
     private void search(){
+        //grab the user input
+        String search = editSearch.getText().toString();
+        //check if the geocoder is accessible
+        if(Geocoder.isPresent()){
+            try {
 
+                Geocoder gc = new Geocoder(this);
+                //find an address from the user input
+                List<Address> address= gc.getFromLocationName(search, 1);
+                if(address.size()>0) {
+                    LatLng location = new LatLng(address.get(0).getLatitude(), address.get(0).getLongitude());
+                    updateCamera(location);
+                    findNearbyStores();
+                }else{
+                    Toast.makeText(this, "Nothing found", Toast.LENGTH_SHORT).show();
+                }
+
+            } catch (IOException e) {
+                Toast.makeText(this, "There was an error with that search", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
 

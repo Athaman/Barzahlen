@@ -1,5 +1,7 @@
 package com.example.athaman.barzahlen;
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -17,10 +19,12 @@ public class Stores {
     private static final String LOG_TAG = Stores.class.getSimpleName();
     private static final String RAW_URL = "https://www.barzahlen.de/";
     private LatLngBounds mBoundary;
+    private Context mContext;
 
 
-    public Stores(LatLngBounds boundary) {
+    public Stores(LatLngBounds boundary, Context context) {
         mBoundary = boundary;
+        mContext = context;
     }
 
     public void execute() {
@@ -51,10 +55,12 @@ public class Stores {
                     double lat = store.getDouble("lat");
                     double lng = store.getDouble("lng");
                     stores.add(new LatLng(lat, lng));
+
                 }
                 return stores;
             } catch (JSONException e) {
                 //TODO handle this.
+                Toast.makeText(mContext, "There was an error loading stores", Toast.LENGTH_SHORT).show();
                 Log.e(LOG_TAG, "Something went horribly wrong processing the JSON");
             }
         }

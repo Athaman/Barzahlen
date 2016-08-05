@@ -7,8 +7,6 @@ import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -23,19 +21,17 @@ public class Directions {
     private static final String KEY = "&key=AIzaSyChohoOE2Ew3p7n42rPfzjVIe4DgGJjr2s";
     private String mOrigin = "origin=";
     private String mDestination = "&destination=";
-    private String mUrl;
-
 
     public Directions(LatLng origin, LatLng destination){
-        this.mOrigin += getLatLngCoords(origin);
-        this.mDestination += getLatLngCoords(destination);
+        mOrigin += getLatLngCoords(origin);
+        mDestination += getLatLngCoords(destination);
     }
 
     //make the final URL, initiate the get directions class and run it.
     public void execute(){
-        setUrl();
+        String url = setUrl();
         GetDirectionData downloadRawData = new GetDirectionData();
-        downloadRawData.execute(mUrl);
+        downloadRawData.execute(url);
     }
 
     //converts an input LatLng into a string of the coords comma separated.
@@ -45,12 +41,13 @@ public class Directions {
         return lat.toString() + "," + lng.toString();
     }
 
-    private void setUrl(){
-        mUrl = BASE_URL  + mOrigin  + mDestination  + MODE + KEY;
+    private String setUrl(){
+       return BASE_URL  + mOrigin  + mDestination  + MODE + KEY;
     }
 
     //takes in the result of the download in a raw JSON String
     private ArrayList<LatLng> processResults(String jsonString){
+        Log.d("JSON", jsonString);
         ArrayList<LatLng> navPoints = new ArrayList<LatLng>();
         if (jsonString != null) {
             try {
@@ -70,7 +67,6 @@ public class Directions {
                 }
                 return navPoints;
             } catch (JSONException e) {
-                //TODO handle this.
                 Log.e(LOG_TAG, "something went horribly wrong with your JSON");
             }
         }
